@@ -1,0 +1,11 @@
+﻿name;username;birth_date;email;phone_number;auth;password
+Kovács Bence;bence.kovacs;1995.03.15;bence.kovacs01@gmail.com;36301234567;admin;Bence123!
+Nagy Anna;anna.nagy;1998.07.22;anna.nagy02@gmail.com;36301234568;user;Anna456!
+Szabó Gábor;gabor.szabo;1992.11.04;gabor.szabo03@gmail.com;36301234569;user;Gabor789!
+Tóth Eszter;eszter.toth;2000.01.18;eszter.toth04@gmail.com;36301234570;admin;Eszter321!
+Varga Dávid;david.varga;1997.06.09;david.varga05@gmail.com;36301234571;user;David654!
+Horváth Réka;reka.horvath;1994.09.27;reka.horvath06@gmail.com;36301234572;user;Reka987!
+Kiss Péter;peter.kiss;1990.12.11;peter.kiss07@gmail.com;36301234573;user;Peter246!
+Molnár Zsófia;zsofia.molnar;1999.04.03;zsofia.molnar08@gmail.com;36301234574;admin;Zsofia135!
+Farkas Dóra;dora.farkas;2001.02.25;dora.farkas09@gmail.com;36301234575;user;Dora579!
+Balogh Márton;marton.balogh;1993.05.14;marton.balogh10@gmail.com;36301234576;user;Marton864!
