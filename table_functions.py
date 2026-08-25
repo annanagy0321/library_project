@@ -8,7 +8,6 @@ config = {
     'password': 'postgres',
 }
 
-
 create_command_for_books = """
         create table if not exists library_books(
             id SERIAL PRIMARY KEY,
@@ -31,7 +30,7 @@ create_command_for_users = """
             birth_date DATE,
             email VARCHAR(255) NOT NULL UNIQUE,
             phone_number VARCHAR(255) NOT NULL,
-            auth VARCHAR(255) NOT NULL,
+            auth VARCHAR(255) DEFAULT USER,
             password VARCHAR(255) NOT NULL
         )
        """
@@ -94,5 +93,6 @@ def users_table():
         print('ERROR', error)
         print(type(error))
 
-# users_table()
+#books_table()
+users_table()
 
