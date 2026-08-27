@@ -1,6 +1,6 @@
 from login_registration import *
 from ascii import book_ascii
-from menu_functions import *
+from menu_functions import menu
 
 print(book_ascii)
 print("\n----------Welcome to the Bookworm Library!----------\n")

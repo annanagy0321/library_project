@@ -1,13 +1,6 @@
 import psycopg2
 from check_userdata import *
 
-config = {
-    'host': 'localhost',
-    'database': 'postgres',
-    'user': 'postgres',
-    'password': 'postgres',
-}
-
 def user_data():
     user = username()
     pwd = password()
@@ -15,13 +8,19 @@ def user_data():
 
 
 def database_execute(query, data=None, fetch=False):
+    config = {
+        'host': 'localhost',
+        'database': 'postgres',
+        'user': 'postgres',
+        'password': 'postgres',
+    }
 
     try:
         with psycopg2.connect(**config) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, data)
                 if fetch:
-                    return cursor.fetchone() # tuple értéket ad vissza
+                    return cursor.fetchall()
 
     except psycopg2.DatabaseError as error:
         print(error)
@@ -41,7 +40,7 @@ def check_auth(username):
         print("Hello, Admin!")
         return "admin"
 
-
+# log
 def login():
     username, password = user_data()
     query = """
@@ -57,7 +56,7 @@ def login():
     else:
         print("Invalid username or password!")
 
-
+# log
 def registration():
     print("----------Register Form----------\n")
     nm = name()

@@ -1,14 +1,15 @@
 import psycopg2
 import csv
 
-config = {
-    'host': 'localhost',
-    'database': 'postgres',
-    'user': 'postgres',
-    'password': 'postgres',
-}
-
 def create_tables(file, command, query):
+
+    config = {
+        'host': 'localhost',
+        'database': 'postgres',
+        'user': 'postgres',
+        'password': 'postgres',
+    }
+
     try:
         with open(file, "r", encoding="utf-8") as csvfile:
             reader = csv.reader(csvfile, delimiter=";")
