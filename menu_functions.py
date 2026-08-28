@@ -49,8 +49,9 @@ def select_where():
     }
     return choose_option(columns_dict, "Where", "Choose a number or quit(q)!:\n")
 
-#jogosultság
+
 #log
+@auth_check_decorator("admin")
 def modify_data():
     column_name = select_column_for_modification()
     if column_name is None:
@@ -75,8 +76,9 @@ def modify_data():
 
 # ellenőrizni kell hogy megfelel-e a táblázatban megadott típusnak
 
-#jogosultság
+
 #log
+@auth_check_decorator("admin")
 def delete_books():
     where_column = select_where()
     where_data = input("'Where''s data:\n")
@@ -110,15 +112,16 @@ def get_book_parameters():
 
     return title,author,year,ISBN,pages,genre,quantity
 
-#jogosultság
+
 #log
+@auth_check_decorator("admin")
 def add_books():
     title, author, year, ISBN, pages, genre, quantity = get_book_parameters()
 
     insert_command ="insert into library_books (title, author, year, ISBN, pages, genre, quantity) values (%s, %s, %s, %s, %s, %s, %s)"
     data = (title, author, year, ISBN, pages, genre, quantity)
 
-    result = database_execute(insert_command,data)
+    database_execute(insert_command,data)
 
 
 def list_options():

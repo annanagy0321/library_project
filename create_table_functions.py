@@ -1,7 +1,12 @@
 import psycopg2
 import csv
+from login_registration import database_execute
 
-def create_tables(file, command, query):
+def make_table(func1, func2):
+    if func1 == False:
+        func2()
+
+def create_table(file, command, query):
 
     config = {
         'host': 'localhost',
@@ -52,7 +57,7 @@ def books_table():
             (title, author, year, ISBN, pages, genre, quantity)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
-    create_tables("library_books.csv", create_command, query)
+    create_table("library_books.csv", create_command, query)
 
 
 def users_table():
@@ -73,7 +78,23 @@ def users_table():
             name, username, birth_date, email, phone_number, auth, password) 
             values (%s, %s, %s, %s, %s, %s, %s)
         """
-    create_tables("library_users.csv", create_command, query)
+    create_table("library_users.csv", create_command, query)
 
-# books_table()
-users_table()
+
+def check_tables(name):
+    table_name = name
+
+    command = ("""
+        SELECT EXISTS (
+            SELECT 1
+            FROM information_schema.tables
+            WHERE table_schema = 'public'
+              AND table_name = %s
+    )
+    """)
+
+    result = database_execute(command, (table_name,), fetch=True)
+    for row in result:
+        return row[0]
+
+

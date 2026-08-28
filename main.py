@@ -1,4 +1,5 @@
 from login_registration import *
+from create_table_functions import *
 from ascii import book_ascii
 from menu_functions import menu
 
@@ -8,6 +9,9 @@ print("\n----------Welcome to the Bookworm Library!----------\n")
 # Username: bence.kovacs
 # password: Bence123!
 
+make_table(check_tables("library_books"), books_table)
+make_table(check_tables("library_users"), users_table)
+
 while True:
     enter = input("Login or register (or q)?:\n").lower()
     if enter == "login":
@@ -15,7 +19,6 @@ while True:
         if is_ok == "logged in":
             menu()
         break
-        #majd ennek megfelelően listázni kell a lehetőségeket
     elif enter == "register":
         registration()
     elif enter == "q":
@@ -23,4 +26,3 @@ while True:
     else:
         print("Invalid input")
 
-    # ezeket követően a menu kilistázása

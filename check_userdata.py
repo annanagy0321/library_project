@@ -45,9 +45,10 @@ def date_of_birth():
         date = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
         if date:
             result = match(pattern,date_of_birth)
+            print(result)
             return result
     except ValueError:
-        return "Invalid date!"
+        return "Invalid data!"
 
 
 def phone_number():
@@ -57,5 +58,9 @@ def phone_number():
     return result
 
 
-
+def get_valid_data(func):
+    result = func()
+    while result == "Invalid data!":
+        result = func()
+    return result
 

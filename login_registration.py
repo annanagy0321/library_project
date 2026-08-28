@@ -1,6 +1,8 @@
 import psycopg2
 from check_userdata import *
 
+USER = None
+
 def user_data():
     user = username()
     pwd = password()
@@ -26,22 +28,27 @@ def database_execute(query, data=None, fetch=False):
         print(error)
 
 
-def check_auth(username):
-    query = """
-         SELECT auth
-         FROM library_users
-         WHERE username = %s
-     """
-    result = database_execute(query, (username,), fetch=True)
-    if result and result[0] == "user":
-        print("Welcome, User!")
-        return "user"
-    else:
-        print("Hello, Admin!")
-        return "admin"
+def auth_check_decorator(required_auth):
+    def decorator(function):
+        def wrapper(*args, **kwargs):
+            username = USER
+            query = """
+                 SELECT auth
+                 FROM library_users
+                 WHERE username = %s
+             """
+            result = database_execute(query, (username,), fetch=True)
+            if result and result[0] == required_auth:
+                func = function(*args, **kwargs)
+                return func
+            else:
+                print("No authorization!")
+        return wrapper
+    return decorator
 
 # log
 def login():
+    global USER
     username, password = user_data()
     query = """
         SELECT username, password
@@ -51,27 +58,33 @@ def login():
     result = database_execute(query,(username, password),fetch=True)
     if result:
         print("Login successful!")
-        check_auth(username)
+        USER = username
         return "logged in"
     else:
         print("Invalid username or password!")
 
+def data(func):
+    while "Invalid data":
+        data = func()
+        return data
 # log
 def registration():
     print("----------Register Form----------\n")
-    nm = name()
-    usernm = username()
-    bday = date_of_birth()
-    mail = email()
-    pw = password()
-    phone = phone_number()
+
+    nm = get_valid_data(name)
+    usernm = get_valid_data(username)
+    bday = get_valid_data(date_of_birth)
+    mail = get_valid_data(email)
+    pw = get_valid_data(password)
+    phone = get_valid_data(phone_number)
 
     command = ("INSERT INTO library_users("
-               "name, username, birth_date, email, phone_number, password, auth)"
-               "VALUES (%s, %s, %s, %s, %s, %s, %s)")
+                "name, username, birth_date, email, phone_number, password, auth)"
+                "VALUES (%s, %s, %s, %s, %s, %s, %s)")
 
     data = (nm,usernm,bday,mail,phone,pw,"user")
 
     database_execute(command, data)
     print("Registration successful!\n")
+
 
