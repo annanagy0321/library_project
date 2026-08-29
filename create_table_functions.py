@@ -6,6 +6,22 @@ def make_table(func1, func2):
     if func1 == False:
         func2()
 
+def check_tables(name):
+    table_name = name
+
+    command = ("""
+        SELECT EXISTS (
+            SELECT 1
+            FROM information_schema.tables
+            WHERE table_schema = 'public'
+              AND table_name = %s
+    )
+    """)
+
+    result = database_execute(command, (table_name,), fetch=True)
+    for row in result:
+        return row[0]
+
 def create_table(file, command, query):
 
     config = {
@@ -45,7 +61,7 @@ def books_table():
                 title VARCHAR(255) NOT NULL,
                 author VARCHAR(255) NOT NULL,
                 year INTEGER,
-                ISBN VARCHAR(255) NOT NULL UNIQUE,
+                ISBN VARCHAR(13) NOT NULL UNIQUE,
                 pages INTEGER,
                 genre VARCHAR(255),
                 quantity INTEGER  
@@ -68,7 +84,7 @@ def users_table():
                 username VARCHAR(255) NOT NULL UNIQUE,
                 birth_date DATE,
                 email VARCHAR(255) NOT NULL UNIQUE,
-                phone_number VARCHAR(255) NOT NULL,
+                phone_number VARCHAR(11) NOT NULL,
                 auth VARCHAR(255) DEFAULT USER,
                 password VARCHAR(255) NOT NULL
             )
@@ -79,22 +95,3 @@ def users_table():
             values (%s, %s, %s, %s, %s, %s, %s)
         """
     create_table("library_users.csv", create_command, query)
-
-
-def check_tables(name):
-    table_name = name
-
-    command = ("""
-        SELECT EXISTS (
-            SELECT 1
-            FROM information_schema.tables
-            WHERE table_schema = 'public'
-              AND table_name = %s
-    )
-    """)
-
-    result = database_execute(command, (table_name,), fetch=True)
-    for row in result:
-        return row[0]
-
-

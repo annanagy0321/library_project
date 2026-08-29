@@ -1,4 +1,4 @@
-from login_registration import *
+from login_registration import login, registration
 from create_table_functions import *
 from ascii import book_ascii
 from menu_functions import menu

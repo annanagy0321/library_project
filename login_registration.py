@@ -1,5 +1,6 @@
 import psycopg2
 from check_userdata import *
+from decorators import log_with_comment
 
 USER = None
 
@@ -28,25 +29,7 @@ def database_execute(query, data=None, fetch=False):
         print(error)
 
 
-def auth_check_decorator(required_auth):
-    def decorator(function):
-        def wrapper(*args, **kwargs):
-            username = USER
-            query = """
-                 SELECT auth
-                 FROM library_users
-                 WHERE username = %s
-             """
-            result = database_execute(query, (username,), fetch=True)
-            if result and result[0] == required_auth:
-                func = function(*args, **kwargs)
-                return func
-            else:
-                print("No authorization!")
-        return wrapper
-    return decorator
-
-# log
+@log_with_comment("Logged in.")
 def login():
     global USER
     username, password = user_data()
@@ -63,13 +46,12 @@ def login():
     else:
         print("Invalid username or password!")
 
-def data(func):
-    while "Invalid data":
-        data = func()
-        return data
-# log
+
+@log_with_comment("Registrated.")
 def registration():
     print("----------Register Form----------\n")
+
+    global USER
 
     nm = get_valid_data(name)
     usernm = get_valid_data(username)
@@ -87,4 +69,5 @@ def registration():
     database_execute(command, data)
     print("Registration successful!\n")
 
+    USER = usernm
 

@@ -1,12 +1,6 @@
 from login_registration import *
-
-#log
-def list_books():
-
-    query = "SELECT * FROM library_books order by id"
-    result  = database_execute(query, fetch=True)
-    for row in result:
-        print(row)
+from create_file import create_csv
+from decorators import log_with_comment, auth_check_decorator
 
 def choose_option(dict, title, query):
     while dict:
@@ -36,6 +30,7 @@ def select_column_for_modification():
         # check, hogy létezik-e
     return choose_option(columns,"Column", "What do you want to modify? Choose a number or quit(q)!:\n")
 
+
 def select_where():
     columns_dict =  {
         "0":{"column": "ID"},
@@ -50,13 +45,52 @@ def select_where():
     return choose_option(columns_dict, "Where", "Choose a number or quit(q)!:\n")
 
 
-#log
+def filter_books():
+    while True:
+        want_filter = input("Do you want to filter the data (y/n)?:\n")
+        if want_filter == "y":
+            filter_list = ["title", "author", "year", "ISBN", "pages", "genre", "quantity"]
+            print("-----FILTER BY-----")
+            for i in filter_list:
+                print(i)
+            filter = input("Filter by:\n").lower()
+            if filter in filter_list:
+                filter_value = input("Value:\n")
+                # beírt adat ellenőrzése hogy megtalálható-e a táblázatban
+                select_command = (f"SELECT * FROM library_books "
+                                  f"WHERE {filter} = %s")
+                result = database_execute(select_command,(filter_value,),fetch=True)
+                for row in result:
+                    print(row)
+                return result
+            else:
+                print("Not a valid option!")
+        else:
+            break
+
+
+@log_with_comment("Listed data.")
+def list_books():
+
+    query = "SELECT * FROM library_books order by id"
+    result  = database_execute(query, fetch=True)
+    for row in result:
+        print(row)
+    print("\n")
+    filtered_data = filter_books()
+    create_file = input("Do you want to save the data?(y/n)?:\n").lower()
+    if create_file == "y":
+        create_csv(filtered_data)
+    else:
+        return filtered_data
+
 @auth_check_decorator("admin")
+@log_with_comment("Modified data.")
 def modify_data():
     column_name = select_column_for_modification()
     if column_name is None:
         return
-    to_what = input("To what?:\n")
+    to_what = input("New data:\n")
     # check, hogy valid data-e
     where_column = select_where()
     if where_column is None:
@@ -73,12 +107,11 @@ def modify_data():
     data = (to_what, where_data)
     result = database_execute(query,data)
 
-
 # ellenőrizni kell hogy megfelel-e a táblázatban megadott típusnak
 
 
-#log
 @auth_check_decorator("admin")
+@log_with_comment("Deleted data.")
 def delete_books():
     where_column = select_where()
     where_data = input("'Where''s data:\n")
@@ -113,8 +146,8 @@ def get_book_parameters():
     return title,author,year,ISBN,pages,genre,quantity
 
 
-#log
 @auth_check_decorator("admin")
+@log_with_comment("Added book to table.")
 def add_books():
     title, author, year, ISBN, pages, genre, quantity = get_book_parameters()
 
