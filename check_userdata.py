@@ -45,7 +45,8 @@ def date_of_birth():
         date = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
         if date:
             result = match(pattern,date_of_birth)
-            print(result)
+            if result > datetime.now().strftime("%Y-%m-%d"):
+                print("Invalid data!")
             return result
     except ValueError:
         return "Invalid data!"
@@ -63,4 +64,3 @@ def get_valid_data(func):
     while result == "Invalid data!":
         result = func()
     return result
-

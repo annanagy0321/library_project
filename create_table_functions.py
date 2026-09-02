@@ -59,7 +59,7 @@ def books_table():
             create table if not exists library_books(
                 id SERIAL PRIMARY KEY,
                 title VARCHAR(255) NOT NULL,
-                author VARCHAR(255) NOT NULL,
+                author VARCHAR(255),
                 year INTEGER,
                 ISBN VARCHAR(13) NOT NULL UNIQUE,
                 pages INTEGER,

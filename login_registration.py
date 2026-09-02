@@ -29,7 +29,7 @@ def database_execute(query, data=None, fetch=False):
         print(error)
 
 
-@log_with_comment("Logged in.")
+
 def login():
     global USER
     username, password = user_data()
@@ -47,7 +47,7 @@ def login():
         print("Invalid username or password!")
 
 
-@log_with_comment("Registrated.")
+
 def registration():
     print("----------Register Form----------\n")
 

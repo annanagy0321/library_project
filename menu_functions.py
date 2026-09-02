@@ -1,6 +1,8 @@
+from check_table_data import *
 from login_registration import *
 from create_file import create_csv
 from decorators import log_with_comment, auth_check_decorator
+
 
 def choose_option(dict, title, query):
     while dict:
@@ -8,68 +10,79 @@ def choose_option(dict, title, query):
         for k, v in dict.items():
             print(f"{k}. {v['column']}")
         question = input(query)
-        # check, hogy létezik-e
         if question == "q":
             break
         elif question in dict:
-            return dict[question]["column"]
-
+            return dict[question]
         else:
             print("Not a valid option!")
 
-def select_column_for_modification():
+def select_column():
     columns = {
-        "1":{"column": "Title"},
-        "2":{"column": "Author"},
-        "3":{"column": "Year"},
-        "4":{"column": "ISBN"},
-        "5":{"column": "Pages"},
-        "6":{"column": "Genre"},
-        "7":{"column": "Quantity"}
+        "1": {"column": "title", "function": title},
+        "2": {"column": "author", "function": author},
+        "3": {"column": "year", "function": year},
+        "4": {"column": "isbn", "function": isbn},
+        "5": {"column": "pages", "function": pages},
+        "6": {"column": "genre", "function": genre},
+        "7": {"column": "quantity", "function": quantity}
     }
-        # check, hogy létezik-e
     return choose_option(columns,"Column", "What do you want to modify? Choose a number or quit(q)!:\n")
 
 
 def select_where():
     columns_dict =  {
-        "0":{"column": "ID"},
-        "1":{"column": "Title"},
-        "2":{"column": "Author"},
-        "3":{"column": "Year"},
-        "4":{"column": "ISBN"},
-        "5":{"column": "Pages"},
-        "6":{"column": "Genre"},
-        "7":{"column": "Quantity"}
+        "0":{"column": "id"},
+        "1":{"column": "title"},
+        "2":{"column": "author"},
+        "3":{"column": "year"},
+        "4":{"column": "isbn"},
+        "5":{"column": "pages"},
+        "6":{"column": "genre"},
+        "7":{"column": "quantity"}
     }
-    return choose_option(columns_dict, "Where", "Choose a number or quit(q)!:\n")
+    result = choose_option(columns_dict, "Where", "Choose a number or quit(q)!:\n")
+    return result["column"]
 
 
 def filter_books():
     while True:
         want_filter = input("Do you want to filter the data (y/n)?:\n")
         if want_filter == "y":
-            filter_list = ["title", "author", "year", "ISBN", "pages", "genre", "quantity"]
-            print("-----FILTER BY-----")
-            for i in filter_list:
-                print(i)
-            filter = input("Filter by:\n").lower()
-            if filter in filter_list:
+            filters = {
+                "0":{"column": "id"},
+                "1":{"column": "title"},
+                "2":{"column": "author"},
+                "3":{"column": "year"},
+                "4":{"column": "isbn"},
+                "5":{"column": "pages"},
+                "6":{"column": "genre"},
+                "7":{"column": "quantity"}
+            }
+            result = choose_option(filters, "Filter", "Filter by (or quit(q)):\n")
+            filter = result["column"]
+
+            if result in filters.values():
                 filter_value = input("Value:\n")
-                # beírt adat ellenőrzése hogy megtalálható-e a táblázatban
-                select_command = (f"SELECT * FROM library_books "
-                                  f"WHERE {filter} = %s")
-                result = database_execute(select_command,(filter_value,),fetch=True)
-                for row in result:
-                    print(row)
-                return result
+                is_data_ok = check_input_data("*", filter, filter_value)
+
+                if is_data_ok == "Data is OK!":
+                    select_command = (f"SELECT * FROM library_books "
+                                        f"WHERE {filter} = %s")
+                    result = database_execute(select_command,(filter_value,),fetch=True)
+                    for row in result:
+                        print(row)
+                    return result
+                else:
+                    print("No data found!")
             else:
                 print("Not a valid option!")
-        else:
+        elif want_filter == "n":
             break
+        else:
+            print("Not a valid option!")
 
 
-@log_with_comment("Listed data.")
 def list_books():
 
     query = "SELECT * FROM library_books order by id"
@@ -81,73 +94,82 @@ def list_books():
     create_file = input("Do you want to save the data?(y/n)?:\n").lower()
     if create_file == "y":
         create_csv(filtered_data)
-    else:
+    elif create_file == "n":
         return filtered_data
+    else:
+        print("Not a valid option!")
 
 @auth_check_decorator("admin")
-@log_with_comment("Modified data.")
 def modify_data():
-    column_name = select_column_for_modification()
+    selected_column = select_column()
+    column_name = selected_column["column"]
+    check_function = selected_column["function"]
     if column_name is None:
         return
-    to_what = input("New data:\n")
-    # check, hogy valid data-e
+
+    to_what = check_new_data(check_function)
+
     where_column = select_where()
     if where_column is None:
         return
-    # check, hogy létezik-e
 
-    where_data = input("'Where''s data:\n")
-    # check, hogy létezik-e
+    where_data = input("Value:\n")
+    is_data_ok = check_input_data(column_name,where_column,where_data)
+    print(is_data_ok)
+    if is_data_ok == "Data is OK!":
 
-    query = (f"UPDATE library_books "
-             f"SET {column_name} = %s"
-             f"WHERE {where_column} = %s")
+        query = (f"UPDATE library_books "
+                 f"SET {column_name} = %s"
+                 f"WHERE {where_column} = %s")
 
-    data = (to_what, where_data)
-    result = database_execute(query,data)
-
-# ellenőrizni kell hogy megfelel-e a táblázatban megadott típusnak
-
+        data = (to_what, where_data)
+        result = database_execute(query,data)
+    else:
+        print(f"{where_data} is not found in {where_column}!")
 
 @auth_check_decorator("admin")
-@log_with_comment("Deleted data.")
 def delete_books():
+    column_name = "*"
     where_column = select_where()
-    where_data = input("'Where''s data:\n")
-    select_command = (f"SELECT * FROM library_books "
-                      f"WHERE {where_column} = %s")
+    where_data = input("Value:\n")
+    is_data_ok = check_input_data(column_name, where_column, where_data)
 
-    delete_command = (f"DELETE FROM library_books "
-                      f"WHERE {where_column} = %s")
-    data = (where_data,)
-    result = database_execute(select_command,data,fetch=True)
-    for row in result:
-        print(row)
-    want_to_delete = input("Do you want to delete this book(y/n)?:\n").lower()
-    if want_to_delete == "y":
-        delete = database_execute(delete_command,data)
+    if is_data_ok == "Data is OK!":
+
+        select_command = (f"SELECT * FROM library_books "
+                          f"WHERE {where_column} = %s")
+
+        delete_command = (f"DELETE FROM library_books "
+                          f"WHERE {where_column} = %s")
+
+        data = (where_data,)
+        result = database_execute(select_command,data,fetch=True)
+        for row in result:
+            print(row)
+        want_to_delete = input("Do you want to delete this/these book(s)(y/n)?:\n").lower()
+        if want_to_delete == "y":
+            delete = database_execute(delete_command,data)
+            # törlés után egy fájlba mentse le a törölt adatokat
+        elif want_to_delete == "n":
+            delete = None
+        return delete
     else:
-        delete = None
-    return delete
-
-# törlés után egy fájlba mentse le a törölt adatokat
+        print(f"{where_data} is not found in {where_column}!")
 
 
 def get_book_parameters():
-    title = input("Title:\n")
-    author = input("Author:\n")
-    year = int(input("Year:\n"))
-    ISBN = input("ISBN:\n")
-    pages = int(input("Pages:\n"))
-    genre = input("Genre:\n")
-    quantity = int(input("Quantity:\n"))
+    new_title = title()
+    new_author = author()
+    new_year = year()
+    new_ISBN = isbn()
+    new_pages = pages()
+    new_genre = genre()
+    new_quantity = quantity()
 
-    return title,author,year,ISBN,pages,genre,quantity
+    return new_title,new_author,new_year,new_ISBN,new_pages,new_genre,new_quantity
 
 
 @auth_check_decorator("admin")
-@log_with_comment("Added book to table.")
 def add_books():
     title, author, year, ISBN, pages, genre, quantity = get_book_parameters()
 
