@@ -1,6 +1,6 @@
 import psycopg2
 import csv
-from login_registration import database_execute
+from login_and_registration import database_execute
 
 def make_table(func1, func2):
     if func1 == False:

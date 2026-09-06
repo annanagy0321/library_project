@@ -29,7 +29,20 @@ def database_execute(query, data=None, fetch=False):
         print(error)
 
 
+def check_new_registration(name, email):
+    query = (f"SELECT name email FROM library_users "
+             f"WHERE username = %s OR email = %s")
 
+    input_data = (name,email)
+
+    result = database_execute(query, input_data, fetch=True)
+    if result:
+        print("Username or email already exists!")
+        return "Exists"
+
+
+
+@log_with_comment("Logged in.")
 def login():
     global USER
     username, password = user_data()
@@ -42,12 +55,12 @@ def login():
     if result:
         print("Login successful!")
         USER = username
-        return "logged in"
+        return "Function completed"
     else:
         print("Invalid username or password!")
 
 
-
+@log_with_comment("Registered.")
 def registration():
     print("----------Register Form----------\n")
 
@@ -60,14 +73,17 @@ def registration():
     pw = get_valid_data(password)
     phone = get_valid_data(phone_number)
 
-    command = ("INSERT INTO library_users("
-                "name, username, birth_date, email, phone_number, password, auth)"
-                "VALUES (%s, %s, %s, %s, %s, %s, %s)")
+    if check_new_registration(usernm, mail) == "Exists":
+        return
+    else:
+        command = ("INSERT INTO library_users("
+                    "name, username, birth_date, email, phone_number, password, auth)"
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s)")
 
-    data = (nm,usernm,bday,mail,phone,pw,"user")
+        data = (nm,usernm,bday,mail,phone,pw,"user")
 
-    database_execute(command, data)
-    print("Registration successful!\n")
+        database_execute(command, data)
+        print("Registration successful!\n")
 
-    USER = usernm
+        USER = usernm
 

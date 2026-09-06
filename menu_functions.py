@@ -1,7 +1,8 @@
-from check_table_data import *
-from login_registration import *
-from create_file import create_csv
-from decorators import log_with_comment, auth_check_decorator
+from check_book_data import *
+from login_and_registration import *
+from create_files import file_for_deleted_books, save_filtered_data
+from decorators import auth_check_decorator, log_with_comment
+
 
 
 def choose_option(dict, title, query):
@@ -83,6 +84,7 @@ def filter_books():
             print("Not a valid option!")
 
 
+@log_with_comment("Listed books.")
 def list_books():
 
     query = "SELECT * FROM library_books order by id"
@@ -93,13 +95,16 @@ def list_books():
     filtered_data = filter_books()
     create_file = input("Do you want to save the data?(y/n)?:\n").lower()
     if create_file == "y":
-        create_csv(filtered_data)
+        save_filtered_data(filtered_data)
+        return "Function completed"
     elif create_file == "n":
         return filtered_data
     else:
         print("Not a valid option!")
 
+
 @auth_check_decorator("admin")
+@log_with_comment("Modified data.")
 def modify_data():
     selected_column = select_column()
     column_name = selected_column["column"]
@@ -119,15 +124,18 @@ def modify_data():
     if is_data_ok == "Data is OK!":
 
         query = (f"UPDATE library_books "
-                 f"SET {column_name} = %s"
+                 f"SET {column_name} = %s "
                  f"WHERE {where_column} = %s")
 
         data = (to_what, where_data)
-        result = database_execute(query,data)
+        database_execute(query,data)
+        return "Function completed"
     else:
         print(f"{where_data} is not found in {where_column}!")
 
+
 @auth_check_decorator("admin")
+@log_with_comment("Deleted data.")
 def delete_books():
     column_name = "*"
     where_column = select_where()
@@ -148,11 +156,14 @@ def delete_books():
             print(row)
         want_to_delete = input("Do you want to delete this/these book(s)(y/n)?:\n").lower()
         if want_to_delete == "y":
-            delete = database_execute(delete_command,data)
-            # törlés után egy fájlba mentse le a törölt adatokat
+            database_execute(delete_command,data)
+            file_for_deleted_books(result)
+            print("Deleted successfully!")
+            return "Function completed"
+
         elif want_to_delete == "n":
             delete = None
-        return delete
+            return delete
     else:
         print(f"{where_data} is not found in {where_column}!")
 
@@ -170,6 +181,7 @@ def get_book_parameters():
 
 
 @auth_check_decorator("admin")
+@log_with_comment("Added books.")
 def add_books():
     title, author, year, ISBN, pages, genre, quantity = get_book_parameters()
 
@@ -177,6 +189,7 @@ def add_books():
     data = (title, author, year, ISBN, pages, genre, quantity)
 
     database_execute(insert_command,data)
+    return "Function completed"
 
 
 def list_options():

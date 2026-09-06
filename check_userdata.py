@@ -7,6 +7,7 @@ def match(pattern,variable):
     if match:
         return variable
     else:
+        print("Invalid data!")
         return "Invalid data!"
 
 
