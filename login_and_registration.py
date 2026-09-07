@@ -5,12 +5,16 @@ from decorators import log_with_comment
 USER = None
 
 def user_data():
+    """User adatainak bekérése."""
+
     user = username()
     pwd = password()
     return user,pwd
 
 
 def database_execute(query, data=None, fetch=False):
+    """Kapcsolat létrehozása a PostgreSQL adatbázissal. """
+
     config = {
         'host': 'localhost',
         'database': 'postgres',
@@ -30,6 +34,8 @@ def database_execute(query, data=None, fetch=False):
 
 
 def check_new_registration(name, email):
+    """Az új regisztráció egyedi adatainak ellenőrzése."""
+
     query = (f"SELECT name email FROM library_users "
              f"WHERE username = %s OR email = %s")
 
@@ -44,6 +50,8 @@ def check_new_registration(name, email):
 
 @log_with_comment("Logged in.")
 def login():
+    """Bejelentkezés a programba."""
+
     global USER
     username, password = user_data()
     query = """
@@ -62,6 +70,8 @@ def login():
 
 @log_with_comment("Registered.")
 def registration():
+    """Új adatok megadása regisztáció során."""
+
     print("----------Register Form----------\n")
 
     global USER
@@ -86,4 +96,5 @@ def registration():
         print("Registration successful!\n")
 
         USER = usernm
+        return "Function completed"
 

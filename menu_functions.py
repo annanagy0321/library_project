@@ -6,6 +6,8 @@ from decorators import auth_check_decorator, log_with_comment
 
 
 def choose_option(dict, title, query):
+    """Opciók megjelenítése és választása."""
+
     while dict:
         print(f"-----Select {title}-----""\n")
         for k, v in dict.items():
@@ -19,6 +21,7 @@ def choose_option(dict, title, query):
             print("Not a valid option!")
 
 def select_column():
+    """Módosítás esetén a módosítandó oszlop kiválasztása."""
     columns = {
         "1": {"column": "title", "function": title},
         "2": {"column": "author", "function": author},
@@ -32,6 +35,8 @@ def select_column():
 
 
 def select_where():
+    """Szűrési feltétel megadása, hol jöjjön létre kért funkció."""
+
     columns_dict =  {
         "0":{"column": "id"},
         "1":{"column": "title"},
@@ -47,6 +52,8 @@ def select_where():
 
 
 def filter_books():
+    """A listázást követően a szűrés létrehozása és ellenőrzés."""
+
     while True:
         want_filter = input("Do you want to filter the data (y/n)?:\n")
         if want_filter == "y":
@@ -86,12 +93,14 @@ def filter_books():
 
 @log_with_comment("Listed books.")
 def list_books():
+    """Könyvek listázása, majd a szűrési és lementési lehetőség létrehozása."""
 
     query = "SELECT * FROM library_books order by id"
     result  = database_execute(query, fetch=True)
     for row in result:
         print(row)
     print("\n")
+
     filtered_data = filter_books()
     create_file = input("Do you want to save the data?(y/n)?:\n").lower()
     if create_file == "y":
@@ -106,21 +115,20 @@ def list_books():
 @auth_check_decorator("admin")
 @log_with_comment("Modified data.")
 def modify_data():
+    """A library_books táblázat adatainak módosítása. Melyik adatot, mire és hol."""
+
     selected_column = select_column()
     column_name = selected_column["column"]
     check_function = selected_column["function"]
-    if column_name is None:
-        return
 
     to_what = check_new_data(check_function)
 
     where_column = select_where()
-    if where_column is None:
-        return
 
     where_data = input("Value:\n")
     is_data_ok = check_input_data(column_name,where_column,where_data)
     print(is_data_ok)
+
     if is_data_ok == "Data is OK!":
 
         query = (f"UPDATE library_books "
@@ -129,6 +137,7 @@ def modify_data():
 
         data = (to_what, where_data)
         database_execute(query,data)
+        print("Modified successfully!")
         return "Function completed"
     else:
         print(f"{where_data} is not found in {where_column}!")
@@ -137,6 +146,8 @@ def modify_data():
 @auth_check_decorator("admin")
 @log_with_comment("Deleted data.")
 def delete_books():
+    """Könyvek kiválasztása és kérés esetén törlése. Külön fájlba menti a törölt adatokat."""
+
     column_name = "*"
     where_column = select_where()
     where_data = input("Value:\n")
@@ -149,15 +160,16 @@ def delete_books():
 
         delete_command = (f"DELETE FROM library_books "
                           f"WHERE {where_column} = %s")
-
         data = (where_data,)
         result = database_execute(select_command,data,fetch=True)
+
         for row in result:
             print(row)
         want_to_delete = input("Do you want to delete this/these book(s)(y/n)?:\n").lower()
         if want_to_delete == "y":
             database_execute(delete_command,data)
             file_for_deleted_books(result)
+
             print("Deleted successfully!")
             return "Function completed"
 
@@ -169,6 +181,8 @@ def delete_books():
 
 
 def get_book_parameters():
+    """Új könyv bevitele során az új adatok bekérése és ellenőrzése."""
+
     new_title = title()
     new_author = author()
     new_year = year()
@@ -183,6 +197,8 @@ def get_book_parameters():
 @auth_check_decorator("admin")
 @log_with_comment("Added books.")
 def add_books():
+    """Új könyv beírása a táblázatba."""
+
     title, author, year, ISBN, pages, genre, quantity = get_book_parameters()
 
     insert_command ="insert into library_books (title, author, year, ISBN, pages, genre, quantity) values (%s, %s, %s, %s, %s, %s, %s)"
@@ -193,6 +209,8 @@ def add_books():
 
 
 def list_options():
+    """Opciók kiírása a menüben."""
+
     options = {
         "1":{"option": "List Books","function":list_books},
         "2":{"option": "Modify Books Table","function":modify_data},
@@ -202,12 +220,14 @@ def list_options():
     return options
 
 def menu():
+    """Menü létrehozása."""
+
     options_dict = list_options()
     while options_dict:
         print("-----MENU-----""\n")
         for k,v in options_dict.items():
             print(f"{k}. {v['option']}")
-        number = input("\n""Choose option or quit (q)!: ").lower()
+        number = input("\n""Choose option or quit (q)!:\n").lower()
         if number == "q":
             break
         elif number in options_dict:

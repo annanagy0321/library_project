@@ -50,17 +50,20 @@ def date_of_birth():
                 print("Invalid data!")
             return result
     except ValueError:
+        print("Invalid data!")
         return "Invalid data!"
 
 
 def phone_number():
     phone_number = input("Phone number: ")
-    pattern = r'^(\+36|06|36)[ /-]?\d{1,2}[ /-]?\d{3}[ /-]?\d{4}$'
+    pattern = r'^(06|36)[ /-]?\d{1,2}[ /-]?\d{3}[ /-]?\d{4}$'
     result = match(pattern,phone_number)
     return result
 
 
 def get_valid_data(func):
+    """Hibás adatok esetén újra kéri az értéket."""
+
     result = func()
     while result == "Invalid data!":
         result = func()

@@ -3,6 +3,7 @@ from create_databases import *
 from ascii import book_ascii
 from menu_functions import menu
 
+
 print(book_ascii)
 print("\n----------Welcome to the Bookworm Library!----------\n")
 
@@ -22,6 +23,3 @@ while True:
         break
     else:
         print("Invalid input")
-
-# Username: bence.kovacs
-# password: Bence123!

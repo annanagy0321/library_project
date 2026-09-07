@@ -2,6 +2,7 @@ from datetime import datetime
 import login_and_registration
 
 def log_with_comment(message):
+    """Log fájl a belépések és módosítások ellenőrzésére."""
     def decorator(function):
         def wrapper(*args, **kwargs):
             result = function(*args, **kwargs)
@@ -23,6 +24,7 @@ def log_with_comment(message):
 
 
 def auth_check_decorator(required_auth):
+    """Jogosultság ellenőrzése."""
     def decorator(function):
         def wrapper(*args, **kwargs):
             username = login_and_registration.USER

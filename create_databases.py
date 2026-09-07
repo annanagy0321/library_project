@@ -3,10 +3,14 @@ import csv
 from login_and_registration import database_execute
 
 def make_table(func1, func2):
+    """Létrehozza a nem létező adatbázist."""
+
     if func1 == False:
         func2()
 
 def check_tables(name):
+    """Ellenőrzi, hogy létezik-e az adatbázis."""
+
     table_name = name
 
     command = ("""
@@ -23,6 +27,7 @@ def check_tables(name):
         return row[0]
 
 def create_table(file, command, query):
+    """Táblázat létrehozása."""
 
     config = {
         'host': 'localhost',
@@ -84,7 +89,7 @@ def users_table():
                 username VARCHAR(255) NOT NULL UNIQUE,
                 birth_date DATE,
                 email VARCHAR(255) NOT NULL UNIQUE,
-                phone_number VARCHAR(11) NOT NULL,
+                phone_number VARCHAR(255) NOT NULL,
                 auth VARCHAR(255) DEFAULT USER,
                 password VARCHAR(255) NOT NULL
             )

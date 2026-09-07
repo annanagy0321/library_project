@@ -1,6 +1,8 @@
 import datetime
 from login_and_registration import database_execute
 
+"""A PostgreSQL library_books táblázata beírni kívánt adatok ellenőrzése."""
+
 def title():
     while True:
         title = input("New title:\n")
@@ -41,7 +43,7 @@ def isbn():
         if len(isbn) == 13:
             return isbn
         else:
-            print("Invalid character number!")
+            print("Character number is wrong!")
 
 
 def pages():
@@ -72,6 +74,8 @@ def quantity():
 
 
 def check_input_data(column_name,where_column,data):
+    """A bekért adat létezésének ellenőrzése."""
+
     query = (f"SELECT {column_name} FROM library_books "
              f"WHERE {where_column} = %s")
     input_data = (data,)
@@ -79,10 +83,9 @@ def check_input_data(column_name,where_column,data):
     result = database_execute(query, input_data,fetch=True)
     if result:
         return "Data is OK!"
-    else:
-        print("Invalid data!")
-
 
 def check_new_data(func):
+    """A bekért adat megfelelésének ellenőrzése."""
+
     result = func()
     return result
